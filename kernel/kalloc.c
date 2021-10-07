@@ -23,6 +23,9 @@ struct {
   struct run *freelist;
 } kmem;
 
+// the amount of available 4096-byte pages of physical memory.
+int mempages = 0;
+
 void
 kinit()
 {
@@ -43,6 +46,7 @@ freerange(void *pa_start, void *pa_end)
 // which normally should have been returned by a
 // call to kalloc().  (The exception is when
 // initializing the allocator; see kinit above.)
+// Increment the amount of available memory pages.
 void
 kfree(void *pa)
 {
@@ -60,11 +64,13 @@ kfree(void *pa)
   r->next = kmem.freelist;
   kmem.freelist = r;
   release(&kmem.lock);
+  mempages++;
 }
 
 // Allocate one 4096-byte page of physical memory.
 // Returns a pointer that the kernel can use.
 // Returns 0 if the memory cannot be allocated.
+// Decrement the amount of available memory pages, if allocation was successful
 void *
 kalloc(void)
 {
@@ -75,8 +81,18 @@ kalloc(void)
   if(r)
     kmem.freelist = r->next;
   release(&kmem.lock);
-
   if(r)
     memset((char*)r, 5, PGSIZE); // fill with junk
+  if(r)
+    mempages--;
   return (void*)r;
+}
+
+// Return the amount of available physical memory in bytes.
+uint64
+freemem(void)
+{
+  if(mempages <= 0)
+    return 0;
+  return 4096*mempages;
 }
