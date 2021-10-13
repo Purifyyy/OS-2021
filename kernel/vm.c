@@ -274,8 +274,6 @@ freewalk(pagetable_t pagetable)
       uint64 child = PTE2PA(pte);
       freewalk((pagetable_t)child);
       pagetable[i] = 0;
-    } else if(pte & PTE_V){
-      panic("freewalk: leaf");
     }
   }
   kfree((void*)pagetable);
@@ -431,4 +429,34 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
   } else {
     return -1;
   }
+}
+
+// Recursively print page-table PTEs and their PAs.
+// Imcrement depth based on PTEs level in the page-table tree.
+void
+vmprint_child(pagetable_t pagetable, int depth)
+{
+  depth++;
+  for(int i = 0; i < 512; i++){
+    pte_t pte = pagetable[i];
+    if(pte & PTE_V){
+      for(int j = 0; j < depth; j++){
+        printf(" ..");
+      }
+      printf("%d: pte %p pa %p\n",i,pte,PTE2PA(pte));
+      if((pte & (PTE_R|PTE_W|PTE_X)) == 0){
+        // this PTE points to a lower-level page table.
+        uint64 child = PTE2PA(pte);
+        vmprint_child((pagetable_t)child, depth);
+      }
+    } 
+  }
+}
+
+// Print page-table pages
+void
+vmprint(pagetable_t pagetable)
+{
+  printf("page table %p\n", pagetable);
+  vmprint_child(pagetable, 0);
 }
