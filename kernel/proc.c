@@ -173,6 +173,7 @@ freeproc(struct proc *p)
   p->xstate = 0;
   p->state = UNUSED;
   kfree((void*)p->page);
+  p->page = 0;
 }
 
 // Create a user page table for a given process,
