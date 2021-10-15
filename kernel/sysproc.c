@@ -77,6 +77,7 @@ sys_sleep(void)
 
 
 #ifdef LAB_PGTBL
+// detect, notify user space of accessed pages (writen to, read from).
 int
 sys_pgaccess(void)
 {
@@ -92,7 +93,6 @@ sys_pgaccess(void)
     return -1;
   if(argaddr(2, &bitmask_user_address) < 0)
     return -1;
-  // TODO: check validity of arguments
   for(int i = 0; i < npages; i++){
     pte_t *pte = walk(myproc()->pagetable, start, 0);
     if(*pte & PTE_A && pte){
