@@ -1,0 +1,12 @@
+Proces SYS_sbrk by mohol byt urychleny pomocou zdielanej stranky, v ktorej by bola aktualna velkost pamate procesu.
+
+
+Initial stack na obrazku je naplneny v init.c argv argumentami pri volani exec.
+
+Stranka 0 obashuje ELF segment.
+
+V stranke 2 je user stack. 
+
+Ano, proces beziaci v uzivatelskom mode moze precitat/zapisat pamat mapovanu strankou 1, pretoze stranka je mapovana s flagom PTE_U.
+
+Tretia stranka od konca je stranka SYSCALL.
