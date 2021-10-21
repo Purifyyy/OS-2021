@@ -1,0 +1,9 @@
+Argumenty funkcii su v registry a0.
+Cislo 13 je ulozene v registry a2.
+Funkcie f() a g() su vyhodnotene v instrukcii 26.
+printf() sa nachadza na adrese 0000000000000628.
+V registry ra po jarl do printf() v maine sa nachadza 38.
+Kod vypise HE110 World (usertrap).
+Ak by bola arch. big-endian museli by sme premennej i priradit hodnotu 0x726c6400.
+Pri big-endiane by nebolo potrebne menit hodnotu 57616.
+Za y= by mala byt hodnota registra a2.
