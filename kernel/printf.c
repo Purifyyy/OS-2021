@@ -132,3 +132,16 @@ printfinit(void)
   initlock(&pr.lock, "pr");
   pr.locking = 1;
 }
+
+// Backtrace stack and print return addresses 
+void
+backtrace(void)
+{
+  uint64 fp = r_fp();
+  uint64 end = PGROUNDUP(fp);
+  printf("backtrace:\n");
+  while(fp < end){
+    printf("%p\n",*(uint64*)(fp-8));
+    fp = *(uint64*)(fp-16);
+  }
+}
