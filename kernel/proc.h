@@ -105,4 +105,9 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  int alarm_interval;	       // Time between the interrupt handler function calls 
+  uint64 alarm_handler;	       // Pointer to interrupt handler function, if -1, handler not set
+  int tick_counter;	       // Time after last handler function call
+  struct trapframe pre_alarm_trapframe; // Saved state, prior to alaram call
+  int alarm_on;	 	       // 1 if alaram in progress, zero otherwise
 };

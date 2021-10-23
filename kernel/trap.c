@@ -77,8 +77,21 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
+  if(which_dev == 2){
+    // if alarm handler set, increment counter
+    if(p->alarm_handler != -1){
+      p->tick_counter++;
+      // if counter reaches set interval, make sure alarm isnt already in progress, save state and handle alarm
+      if(p->tick_counter >= p->alarm_interval){
+        if(!p->alarm_on){
+          p->alarm_on = 1;
+          p->pre_alarm_trapframe = *p->trapframe;
+          p->trapframe->epc = p->alarm_handler;
+        }
+      }
+    }
     yield();
+  }
 
   usertrapret();
 }
