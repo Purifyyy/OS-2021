@@ -1,0 +1,1 @@
+Problem nastane vo chvili, ked dve vlakna naraz vykonavaju put. Prve vlakno insertne novy kluc, a kedze vlakna prechadzali naraz cyklom, tak druhe vlakno ma tiez domienku ze kluc este v tabulke neexistuje. Takze sa namiesto upravy hodnoty, v kluci uz vytvorenom rychlejsim vlaknom, znova kluc insertne. Tym padom prideme o kluc a jeho hodnotu, insertnutu rychlejsim vlaknom.
