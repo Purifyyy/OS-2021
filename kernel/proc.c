@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "fcntl.h"
 
 struct cpu cpus[NCPU];
 
@@ -280,7 +281,14 @@ fork(void)
   if((np = allocproc()) == 0){
     return -1;
   }
-
+	// Increment vma files ref, since child gets the copy.
+	for(int i = 0; i < VMA_NUM; i++){
+		if(p->vma[i].f != 0)
+			filedup(p->vma[i].f);
+	}
+	// Copy all parent regions to child.
+	memmove(np->vma, p->vma, sizeof(struct vma));
+	
   // Copy user memory from parent to child.
   if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
     freeproc(np);
@@ -352,7 +360,23 @@ exit(int status)
       p->ofile[fd] = 0;
     }
   }
-
+	// Unmap processes regions of mapped files, functionality based on munmap.
+	for(int i = 0; i < VMA_NUM; i++){
+		if(p->vma[i].f != 0){
+			int size = 0;
+			while(size < p->vma[i].length){
+  			if(walkaddr(p->pagetable, p->vma[i].address + size) != 0){
+					if((p->vma[i].flags == MAP_SHARED))
+						filewrite(p->vma[i].f, p->vma[i].address + size, PGSIZE);
+					uvmunmap(p->pagetable, p->vma[i].address + size, 1, 0);
+				}
+  			size += PGSIZE;
+  		}
+  		fileclose(p->vma[i].f);
+    	p->vma[i].f = 0;	
+		}
+	
+	}
   begin_op();
   iput(p->cwd);
   end_op();
